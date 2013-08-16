@@ -1,9 +1,6 @@
-from scipy.signal import fftconvolve,hann, blackmanharris
-from scipy import fftpack
+from scipy.signal import fftconvolve
 import matplotlib.mlab as mlab
-import matplotlib.pyplot as plt
-import numpy as np
-from numpy import linspace,sin,pi,diff,argmax,log,copy
+from numpy import linspace,sin,pi,diff,argmax
 from Parabolic import parabolic
 import time
 f_A4=440
@@ -39,42 +36,18 @@ def DetectionFailed(error):
 
 
 ###to test the function
-fs = 44100
+fs = int(4.41e5)
 window_len = fs/10
 x=linspace(0,0.1,fs/10)
 f=f_A4  #frequency of A4 note
 
-#f=27.5  #frequency of A4 note
+f=27.5  #frequency of A4 note
 y=sin(2*pi*f*x)+0.5 #manually add an offset
 
 tic=time.perf_counter()
-window = blackmanharris(window_len,False)*y
-flat = y[0:window_len]
-
-res_wind,d,corr=freq_from_autocorr(window,fs)
-res_flat,d,corr=freq_from_autocorr(flat,fs)
+window = y[0:0+window_len]
+res,d,corr=freq_from_autocorr(window,fs)
 toc=time.perf_counter()
 timediff=toc-tic
-print("Detected frequency is:", res_wind, "and the true frequency is :", f)
-print("Detected frequency (flat)is:", res_flat, "and the true frequency is :", f)
+print("Detected frequency is:", res, "and the true frequency is :", f)
 print("Time elapsed:", timediff)
-windowed = np.array(window)
-windowed-=windowed.mean()
-c = abs(fftpack.rfft(windowed))
-maxharms = 8
-plt.subplot(maxharms,1,1)
-plt.plot(log(c))
-for x in range(2,maxharms):
-    a = copy(c[::x]) #Should average or maximum instead of decimating
-    # max(c[::x],c[1::x],c[2::x],...)
-    c = c[:len(a)]
-    i = argmax(abs(c))
-    try:
-        true_i = parabolic(abs(c), i)[0]
-    except IndexError:
-        true_i = i
-    print ('Pass %d: %f Hz' % (x, fs * true_i / len(windowed)))
-    c *= a
-    plt.subplot(maxharms,1,x)
-    plt.plot(log(c))
-plt.show()
