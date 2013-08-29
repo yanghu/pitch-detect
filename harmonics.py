@@ -2,8 +2,10 @@ import numpy
 from matplotlib import pyplot as plt
 from numpy import sin,pi
 
-def harmonic_series(fbase):
-	x=numpy.arange(0,0.02,1/44000)
+def harmonic_series(fbase,len=None):
+	if len == None:
+		len=0.03
+	x=numpy.arange(0,len,1/44000)
 	harmo_f = [fbase*n for n in range(10)]
 	t=[]
 	for freq in harmo_f:
@@ -41,16 +43,34 @@ def just_into_tune():
 		key = newkey
 		newkey = getnext(key)
 
-	freqs = [tune[key] for key in notes]
+	C4 = 261.63
+	freqs = [tune[key]*C4/100 for key in notes]
+	
+def well_tempered():
+	notes = list('CcDdEFfGgAaB')
+	keys = [1*2**(n/12) for n in range(13)]
+	C4 = 261.63
+	freqs = [key*C4 for key in keys]
+	tune = dict(zip(notes,freqs))
+	return tune
 
-A_series = harmonic_series(220)
 
-E_series = harmonic_series(220*(2**(7/12)))
+tunes = well_tempered()
+
+Gs_series = harmonic_series(tunes['g'],0.5)
+A_series = harmonic_series(tunes['A'],0.1)
+
+E_series = harmonic_series(tunes['E'],0.1)
+Gs3=Gs_series[1]
 A3=A_series[1]
 A4=A_series[2]
 E5=E_series[2]
 fifth = A4+E5
+#semi = Gs3+A3
+
+x=numpy.arange(0,0.1,1/44000)
 
 
 plot(fifth)
 plot(A3)
+plot(x,semi)
